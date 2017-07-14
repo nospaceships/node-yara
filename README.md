@@ -10,19 +10,13 @@ their associated C header files.  Use the following commands to install these
 libraries before installation:
 
 	# CentOS/Red Hat
-	
 	sudo yum install file-devel
 	
 	# Debian/Ubuntu
-	
 	sudo apt-get install libmagic-dev
 
 	# MacOS (using homebrew)
-
 	sudo brew install autoconf aclocal automake libtool libmagic libssl
-
-The `libyara` library source is NOT included with this package and will be
-downloaded and compiled using `make` and associated tools during installation.
 
 This module is installed using [node package manager (npm)][npm]:
 
@@ -32,6 +26,8 @@ This module is installed using [node package manager (npm)][npm]:
 
 	npm install yara
 
+The `libyara` library source is NOT included in this module and will be
+downloaded and compiled using `make` and associated tools during installation.
 By default version `3.6.3` of `libyara` will used, The version can be
 overridden using the `YARA` environment variable, e.g.:
 
@@ -369,8 +365,8 @@ items:
  * `timeout` - A number specifying after how many seconds a scan should be
    aborted, defaults to `0` meaning no timeout
  * `matchedBytes` - A number specifying the number of bytes of actual matched
-   content to include in the scan result, defaults to `0` meaning not to
-	include any matched content, note that this number is also capped by the
+   data to include in the scan result, defaults to `0` meaning not to
+	include any matched data, note that this number is also capped by the
 	`MAX_MATCH_DATA` libyara configuration
 
 The `callback` function is called once the scan has completed.  The following
@@ -392,12 +388,13 @@ arguments will be passed to the `callback` function:
             in the content, e.g. `7`
           * `id` - The matching strings identifier, e.g. `$s1`
           * `bytes` - If the `matchedBytes` attribute was specified in the
-            `request` parameter passed to the `scan()` method this attribute
-            contains a Node.js `Buffer` object with the bytes found to match,
-            this may not contain the total data that matched, and will be
-            up to the number specified by `matchedBytes` or the
-            `MAX_MATCH_DATA` libyara configuration, use the `length` attribute
-				to determine if the `Buffer` object contains all the matched data
+            `request` parameter passed to the `scan()` method, this attribute
+            will be present and will contain a Node.js `Buffer` instance with
+				the bytes of data which matched, this may not contain all data that
+				matched, and will contain a number of bytes up to the number
+				specified by `matchedBytes`, or the `MAX_MATCH_DATA` libyara
+				configuration if it is smaller, use the `length` attribute to
+				determine if the `bytes` attribute contains all the matched data
        * `metas` - An array of objects, each identifying a meta field defined
          on the rule, since a rule may have no meta fields this array may have
          a length of `0`, each object will contain the following attributes:
