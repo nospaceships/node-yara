@@ -1,0 +1,6 @@
+syntax: glob
+build
+deps/yara-3.6.0
+node_modules
+npm-debug.log
+TODO.md

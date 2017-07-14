@@ -1,0 +1,7 @@
+
+rule is_stephen {
+	strings:
+		$s1 = "stephen"
+	condition:
+		any of them
+}

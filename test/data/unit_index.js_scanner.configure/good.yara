@@ -1,0 +1,6 @@
+
+rule good {
+	condition:
+		true
+}
+

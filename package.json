@@ -1,0 +1,30 @@
+{
+  "name": "yara",
+  "version": "1.2.0",
+  "description": "YARA support for Node.js",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "nan": "2.3.*"
+  },
+  "contributors": [ 
+    {
+      "name": "Stephen Vickers",
+      "email": "stephen.vickers.sv@gmail.com"
+    } 
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stephenwvickers/node-yara.git"
+  },
+  "keywords": [
+    "libyara",
+    "virustotal",
+    "vt",
+    "yara"
+  ],
+  "author": "Stephen Vickers <stephen.vickers.sv@gmail.com>",
+  "license": "MIT"
+}

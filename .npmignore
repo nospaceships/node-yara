@@ -1,0 +1,4 @@
+build
+deps/yara-3.6.0
+node_modules
+TODO.md
