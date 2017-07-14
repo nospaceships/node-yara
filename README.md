@@ -28,10 +28,10 @@ This module is installed using [node package manager (npm)][npm]:
 
 The `libyara` library source is NOT included in this module and will be
 downloaded and compiled using `make` and associated tools during installation.
-By default version `3.6.3` of `libyara` will used, The version can be
+By default version `3.6.3` of `libyara` will used. The version can be
 overridden using the `YARA` environment variable, e.g.:
 
-	YARA=3.6.4 npm install yara
+	export YARA=3.6.4; npm install yara
 
 It is loaded using the `require()` function:
 
