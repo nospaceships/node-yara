@@ -233,6 +233,16 @@ instances of the `Scanner` class.
 Before any `Scanner` instances can be configured, or used for scanning, the
 `yara.initialize()` function must be called.
 
+## yara.libyaraVersion()
+
+The `libyaraVersion()` function returns a string containing the version of
+YARA which was statically compiled into the module during installation.
+
+The following example will print `3.6.4` to standard output if the module was
+installed using the `YARA=3.6.4 npm install yara` command:
+
+	console.log(yara.libyaraVersion())
+
 ## yara.initialize(callback)
 
 The `initialize()` function initializes the YARA library by calling the
