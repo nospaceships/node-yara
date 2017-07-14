@@ -664,11 +664,27 @@ struct ScanReq {
 	int32_t timeout;
 };
 
+struct MatchData {
+	MatchData(uint8_t* data_bytes, uint32_t data_length) {
+		bytes = new uint8_t[data_length];
+		memcpy((void*) bytes, (void*) data_bytes, data_length);
+		length = data_length;
+	};
+
+	~MatchData() {
+		delete[] bytes;
+	};
+
+	uint8_t* bytes;
+	uint32_t length;
+};
+
 struct ScanRuleMatch {
 	std::string id;
 	std::list<std::string> tags;
 	std::list<std::string> metas;
 	std::list<std::string> matches;
+	std::list<MatchData*> datas;
 };
 
 typedef std::list<ScanRuleMatch*> ScanRuleMatchList;
@@ -681,16 +697,31 @@ public:
 			Nan::Callback* callback
 		) : Nan::AsyncWorker(callback),
 				scanner_(scanner),
-				scan_req_(scan_req) {}
+				scan_req_(scan_req) {
+		matched_bytes = 0;
+	}
 
 	~AsyncScan() {
 		ScanRuleMatch* rule_match;
 		ScanRuleMatchList::iterator rule_matches_it;
 
+		MatchData* match_data;
+		std::list<MatchData*>::iterator match_data_it;
+
 		for (rule_matches_it = rule_matches.begin();
 				rule_matches_it != rule_matches.end();
 				rule_matches_it++) {
 			rule_match = *rule_matches_it;
+
+			for (match_data_it = rule_match->datas.begin();
+					match_data_it != rule_match->datas.end();
+					match_data_it++) {
+				match_data = *match_data_it;
+				delete match_data;
+			}
+
+			rule_match->datas.clear();
+
 			delete rule_match;
 		}
 
@@ -738,6 +769,7 @@ public:
 	}
 
 	ScanRuleMatchList rule_matches;
+	int32_t matched_bytes;
 
 protected:
 
@@ -785,10 +817,21 @@ protected:
 				matches->Set(matches_index++, match);
 			}
 
+			Local<Array> datas = Nan::New<Array>();
+			int datas_index = 0;
+
+			for (std::list<MatchData*>::iterator datas_it = rule_match->datas.begin();
+					datas_it != rule_match->datas.end();
+					datas_it++) {
+				Local<Object> data = Nan::NewBuffer((char*) (*datas_it)->bytes, (*datas_it)->length).ToLocalChecked();
+				datas->Set(datas_index++, data);
+			}
+
 			rule->Set(Nan::New("id").ToLocalChecked(), Nan::New(rule_match->id.c_str()).ToLocalChecked());
 			rule->Set(Nan::New("tags").ToLocalChecked(), tags);
 			rule->Set(Nan::New("metas").ToLocalChecked(), metas);
 			rule->Set(Nan::New("matches").ToLocalChecked(), matches);
+			rule->Set(Nan::New("datas").ToLocalChecked(), datas);
 
 			rules->Set(rules_index++, rule);
 		}
@@ -845,6 +888,15 @@ int scanCallback(int message, void* data, void* param) {
 				yr_string_matches_foreach(string, match) {
 					std::ostringstream oss;
 					oss << match->offset << ":" << match->match_length << ":" << string->identifier;
+
+					if (async_scan->matched_bytes > 0) {
+						MatchData* match_data = new MatchData(
+								match->data,
+								(match->data_length < async_scan->matched_bytes)
+										? match->data_length
+										: async_scan->matched_bytes);
+						rule_match->datas.push_back(match_data);
+					}
 
 					rule_match->matches.push_back(oss.str());
 				}
@@ -906,6 +958,7 @@ NAN_METHOD(ScannerWrap::Scan) {
 	int64_t length = 0;
 	int32_t flags = 0;
 	int32_t timeout = 0;
+	int32_t matched_bytes = 0;
 
 	if (req->Get(Nan::New("filename").ToLocalChecked())->IsString()) {
 		Local<String> s = req->Get(Nan::New("filename").ToLocalChecked())->ToString();
@@ -978,6 +1031,19 @@ NAN_METHOD(ScannerWrap::Scan) {
 		return;
 	}
 
+	if (req->Get(Nan::New("matchedBytes").ToLocalChecked())->IsNumber()) {
+		Local<Number> n = Nan::To<Number>(req->Get(Nan::New("matchedBytes").ToLocalChecked())).ToLocalChecked();
+
+		if (n->Value() <= 0) {
+			Nan::ThrowError("Matched bytes is out of bounds");
+			return;
+		} else {
+			matched_bytes = n->Value();
+		}
+	} else {
+		matched_bytes = 0;
+	}
+
 	ScanReq* scan_req = new ScanReq();
 
 	if (filename)
@@ -996,6 +1062,8 @@ NAN_METHOD(ScannerWrap::Scan) {
 			scan_req,
 			callback
 		);
+	
+	async_scan->matched_bytes = matched_bytes;
 
 	Nan::AsyncQueueWorker(async_scan);
 

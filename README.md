@@ -427,10 +427,15 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
  * Support Mac OS
  * Address indentation inconsistencies
 
-## Version 1.2.0 - 29/05/2017
+## Version 1.2.0 - 29/05/2017
 
  * Introduce "official" support for Mac OS
  * Upgrade YARA to 3.6.0
+
+## Version 1.3.0 - 14/07/2017
+
+ * Extract specified number of bytes of matched data when a string from a rule
+   matches
 
 # Roadmap
 

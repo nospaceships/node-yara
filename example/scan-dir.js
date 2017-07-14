@@ -25,7 +25,7 @@ function doOne(file) {
 
 			console.log("scanning: %s", dir + "/" + file)
 
-			scanner.scan({filename: dir + "/" + file}, function(path, error, result) {
+			scanner.scan({filename: dir + "/" + file, matchedBytes: 10}, function(path, error, result) {
 				if (error) {
 					console.error("scan %s failed: %s", path, error.message)
 				} else {

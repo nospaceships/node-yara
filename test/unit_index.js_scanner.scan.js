@@ -70,6 +70,86 @@ describe("index.js", function() {
 			})
 		})
 
+		it("buffer - matched bytes (enough)", function(done) {
+			var req = {
+				matchedBytes: 100,
+				buffer: Buffer.from("my name is stephen")
+			}
+
+			scanner.scan(req, function(error, result) {
+				assert.ifError(error)
+
+				var expected = {
+					"rules": [
+						{
+							"id": "is_stephen",
+							"tags": ["human", "man"],
+							"matches": [
+								{offset: 11, length: 7, id: "$s1", bytes: Buffer.from("stephen")}
+							],
+							"metas": [
+								{type: 2, id: "m1", value: "m1"},
+								{type: 3, id: "m2", value: true},
+								{type: 1, id: "m3", value: 123}
+							]
+						},
+						{
+							"id": "is_either",
+							"tags": ["human", "man", "woman"],
+							"matches": [
+								{offset: 11, length: 7, id: "$s1", bytes: Buffer.from("stephen")}
+							],
+							"metas": []
+						}
+					]
+				}
+
+				assert.deepEqual(result, expected)
+
+				done()
+			})
+		})
+
+		it("buffer - matched bytes (short)", function(done) {
+			var req = {
+				matchedBytes: 4,
+				buffer: Buffer.from("my name is stephen")
+			}
+
+			scanner.scan(req, function(error, result) {
+				assert.ifError(error)
+
+				var expected = {
+					"rules": [
+						{
+							"id": "is_stephen",
+							"tags": ["human", "man"],
+							"matches": [
+								{offset: 11, length: 7, id: "$s1", bytes: Buffer.from("step")}
+							],
+							"metas": [
+								{type: 2, id: "m1", value: "m1"},
+								{type: 3, id: "m2", value: true},
+								{type: 1, id: "m3", value: 123}
+							]
+						},
+						{
+							"id": "is_either",
+							"tags": ["human", "man", "woman"],
+							"matches": [
+								{offset: 11, length: 7, id: "$s1", bytes: Buffer.from("step")}
+							],
+							"metas": []
+						}
+					]
+				}
+
+				assert.deepEqual(result, expected)
+
+				done()
+			})
+		})
+
 		it("buffer.length - out of range (negative)", function(done) {
 			var req = {
 				buffer: Buffer.from("1234"),

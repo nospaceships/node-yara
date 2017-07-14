@@ -99,8 +99,13 @@ Scanner.prototype.scan = function(req, cb) {
 						id: fields[2]
 					}
 
+					if (i < rule.datas.length)
+						match.bytes = rule.datas[i]
+
 					rule.matches[i] = match
 				}
+
+				delete rule.datas
 			})
 
 			cb(null, result)
