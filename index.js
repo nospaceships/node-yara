@@ -130,3 +130,7 @@ exports.createScanner = function(options) {
 exports.initialize = function(cb) {
 	return yara.initialize(cb)
 }
+
+exports.libyaraVersion = function() {
+	return yara.libyaraVersion()
+}

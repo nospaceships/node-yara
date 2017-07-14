@@ -11,11 +11,11 @@
       ],
       "include_dirs": [
         "<!(node -e 'require(\"nan\")')",
-        "./deps/yara-3.6.0/build/include"
+        "./build/yara/include"
       ],
       "libraries": [
         "-lmagic",
-        "../deps/yara-3.6.0/build/lib/libyara.a"
+        "../build/yara/lib/libyara.a"
       ],
       "conditions": [
         [
@@ -31,10 +31,10 @@
         {
           "action_name": "build_libyara",
           "inputs": [
-            "deps/yara-3.6.0.tar.gz"
+            "deps"
           ],
           "outputs": [
-            "deps/yara-3.6.0/build"
+            "build/yara"
           ],
           "action": [
             "make",

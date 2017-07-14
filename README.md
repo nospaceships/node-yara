@@ -21,8 +21,8 @@ libraries before installation:
 
 	sudo brew install autoconf aclocal automake libtool libmagic libssl
 
-The `libyara` library source is included with this package and will be
-compiled using `make` and associated tools during installation.
+The `libyara` library source is NOT included with this package and will be
+downloaded and compiled using `make` and associated tools during installation.
 
 This module is installed using [node package manager (npm)][npm]:
 
@@ -31,6 +31,11 @@ This module is installed using [node package manager (npm)][npm]:
 	# must be configured before installation.
 
 	npm install yara
+
+By default version `3.6.3` of `libyara` will used, The version can be
+overridden using the `YARA` environment variable, e.g.:
+
+	YARA=3.6.4 npm install yara
 
 It is loaded using the `require()` function:
 
@@ -363,6 +368,10 @@ items:
    defaults to `0`
  * `timeout` - A number specifying after how many seconds a scan should be
    aborted, defaults to `0` meaning no timeout
+ * `matchedBytes` - A number specifying the number of bytes of actual matched
+   content to include in the scan result, defaults to `0` meaning not to
+	include any matched content, note that this number is also capped by the
+	`MAX_MATCH_DATA` libyara configuration
 
 The `callback` function is called once the scan has completed.  The following
 arguments will be passed to the `callback` function:
@@ -378,10 +387,17 @@ arguments will be passed to the `callback` function:
          match on other non-string items this array may have a length of `0`,
          each object will contain the following attributes:
           * `offset` - A number indicating at which offset in the content the
-            string was found, e.g. `43`
-          * `length` - A number indicating the length of the string found
+            string matched some data, e.g. `43`
+          * `length` - A number indicating the length of the data matched
             in the content, e.g. `7`
-          * `id` - The strings identifier, e.g. `$s1`
+          * `id` - The matching strings identifier, e.g. `$s1`
+          * `bytes` - If the `matchedBytes` attribute was specified in the
+            `request` parameter passed to the `scan()` method this attribute
+            contains a Node.js `Buffer` object with the bytes found to match,
+            this may not contain the total data that matched, and will be
+            up to the number specified by `matchedBytes` or the
+            `MAX_MATCH_DATA` libyara configuration, use the `length` attribute
+				to determine if the `Buffer` object contains all the matched data
        * `metas` - An array of objects, each identifying a meta field defined
          on the rule, since a rule may have no meta fields this array may have
          a length of `0`, each object will contain the following attributes:
@@ -435,7 +451,12 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
 ## Version 1.3.0 - 14/07/2017
 
  * Extract specified number of bytes of matched data when a string from a rule
-   matches
+   matches (added the `matchedBytes` attribute to the `request` object to the
+	`Scanner.scan()` method)
+ * YARA dependancy is downloaded during build (defaults to `3.6.3`, override
+   using `YARA=x.x.x npm install`)
+ * Added the `libyaraVersion()` function to obtain the version of YARA which
+   has been statically compiled into the module
 
 # Roadmap
 

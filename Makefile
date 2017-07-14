@@ -11,12 +11,14 @@ CFLAGS  += -I/usr/local/include
 LDFLAGS += -L/usr/local/lib
 endif
 
-YARA=3.6.0
+YARA?=3.6.3
 
 libyara: yara
 
 yara:
+	-rm -rf $(BASE)/build/yara
 	-rm -rf $(BASE)/deps/yara-$(YARA)
+	test -f $(BASE)/deps/yara-$(YARA).tar.gz || curl -L -k https://github.com/VirusTotal/yara/archive/v$(YARA).tar.gz > $(BASE)/deps/yara-$(YARA).tar.gz
 	cd $(BASE)/deps && tar -xzvf yara-$(YARA).tar.gz
 	cd $(BASE)/deps/yara-$(YARA) && ./bootstrap.sh
 	cd $(BASE)/deps/yara-$(YARA) && \
@@ -27,6 +29,6 @@ yara:
 					--enable-static \
 					--disable-shared \
 					--with-pic \
-					--prefix=$(BASE)/deps/yara-$(YARA)/build
+					--prefix=$(BASE)/build/yara
 	cd $(BASE)/deps/yara-$(YARA) && make
 	cd $(BASE)/deps/yara-$(YARA) && make install

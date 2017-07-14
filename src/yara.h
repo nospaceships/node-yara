@@ -15,6 +15,7 @@ void ExportConstants(Handle<Object> target);
 void ExportFunctions(Handle<Object> target);
 
 NAN_METHOD(ErrorCodeToString);
+NAN_METHOD(LibyaraVersion);
 NAN_METHOD(Initialize);
 
 class ScannerWrap : public Nan::ObjectWrap {

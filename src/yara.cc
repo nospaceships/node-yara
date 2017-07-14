@@ -151,9 +151,20 @@ void ExportConstants(Handle<Object> target) {
 }
 
 void ExportFunctions(Handle<Object> target) {
+	Nan::Set(target, Nan::New("libyaraVersion").ToLocalChecked(),
+			Nan::New<FunctionTemplate>(LibyaraVersion)->GetFunction());
 	Nan::Set(target, Nan::New("initialize").ToLocalChecked(),
 			Nan::New<FunctionTemplate>(Initialize)->GetFunction());
 }
+
+NAN_METHOD(LibyaraVersion) {
+	Nan::HandleScope scope;
+
+	Local<String> version = Nan::New(YR_VERSION).ToLocalChecked();
+
+	info.GetReturnValue().Set(version);
+}
+
 
 class AsyncInitialize : public Nan::AsyncWorker {
 public:
