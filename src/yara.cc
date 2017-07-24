@@ -676,15 +676,22 @@ struct ScanReq {
 };
 
 struct MatchData {
-	MatchData(uint8_t* data_bytes, uint32_t data_length) {
-		bytes = new uint8_t[data_length];
-		memcpy((void*) bytes, (void*) data_bytes, data_length);
-		length = data_length;
+	MatchData() {
+		bytes = NULL;
+		length = 0;
 	};
 
-	~MatchData() {
-		delete[] bytes;
-	};
+	bool copy(uint8_t* data_bytes, uint32_t data_length) {
+		bytes = (uint8_t*) realloc((uint8_t*) bytes, data_length);
+		if (! bytes)
+			return false;
+		memcpy((void*) bytes, (void*) data_bytes, data_length);
+		length = data_length;
+		return true;
+	}
+
+	// We don't free bytes since we assume it is managed by a Buffer instance
+	~MatchData() {};
 
 	uint8_t* bytes;
 	uint32_t length;
@@ -901,12 +908,17 @@ int scanCallback(int message, void* data, void* param) {
 					oss << match->offset << ":" << match->match_length << ":" << string->identifier;
 
 					if (async_scan->matched_bytes > 0) {
-						MatchData* match_data = new MatchData(
-								match->data,
+						MatchData* match_data = new MatchData();
+
+						// If memory allocation fails we can't really do much
+						if (match_data->copy(match->data,
 								(match->data_length < async_scan->matched_bytes)
 										? match->data_length
-										: async_scan->matched_bytes);
-						rule_match->datas.push_back(match_data);
+										: async_scan->matched_bytes)) {
+							rule_match->datas.push_back(match_data);
+						} else {
+							delete match_data;
+						}
 					}
 
 					rule_match->matches.push_back(oss.str());
