@@ -465,6 +465,11 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
  * Added the `libyaraVersion()` function to obtain the version of YARA which
    has been statically compiled into the module
 
+## Version 1.3.1 - 24/07/2017
+
+ * Matched data buffer in scan result is freed twice resulting a double free
+   exception
+
 # Roadmap
 
 Suggestions and requirements should be sent to <stephen.vickers.sv@gmail.com>.
