@@ -40,7 +40,7 @@ It is loaded using the `require()` function:
 Following initialisation of this module `Scanner` objects can then
 be created, and content scanned using YARA rules:
 
-	yara.intialize(function(error) {
+	yara.initialize(function(error) {
 		if (error) {
 			console.error(error.message)
 		} else {
@@ -66,7 +66,7 @@ be created, and content scanned using YARA rules:
 						console.error(error.message)
 					}
 				} else {
-					if (warnings.length)
+					if (warnings.length) {
 						console.error("Compile warnings: " + JSON.stringify(warnings))
 					} else {
 						var req = {buffer: Buffer.from("content")}
