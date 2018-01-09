@@ -681,7 +681,7 @@ struct MatchData {
 		length = 0;
 	};
 
-	bool copy(uint8_t* data_bytes, uint32_t data_length) {
+	bool copy(const uint8_t* data_bytes, uint32_t data_length) {
 		bytes = (uint8_t*) realloc((uint8_t*) bytes, data_length);
 		if (! bytes)
 			return false;

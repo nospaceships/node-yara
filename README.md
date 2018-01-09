@@ -28,7 +28,7 @@ This module is installed using [node package manager (npm)][npm]:
 
 The `libyara` library source is NOT included in this module and will be
 downloaded and compiled using `make` and associated tools during installation.
-By default version `3.6.3` of `libyara` will used. The version can be
+By default version `3.7.0` of `libyara` will used. The version can be
 overridden using the `YARA` environment variable, e.g.:
 
 	export YARA=3.6.4; npm install yara
@@ -469,6 +469,11 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
 
  * Matched data buffer in scan result is freed twice resulting a double free
    exception
+
+## Version 1.4.0 - 09/01/2018
+
+ * Update YARA version downloaded during install to the latest stable release
+   (version 3.7.0)
 
 # Roadmap
 
