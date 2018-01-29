@@ -459,11 +459,13 @@ public:
 						);
 				}
 			}
-
-			rc = yr_compiler_get_rules(scanner_->compiler, &scanner_->rules);
-			if (rc != ERROR_SUCCESS)
-				yara_throw(YaraError, "yr_compiler_get_rules() failed: "
-						<< getErrorString(rc));
+			
+			if (error_count == 0) {
+				rc = yr_compiler_get_rules(scanner_->compiler, &scanner_->rules);
+				if (rc != ERROR_SUCCESS)
+					yara_throw(YaraError, "yr_compiler_get_rules() failed: "
+							<< getErrorString(rc));
+			}
 		} catch(std::exception& error) {
 			SetErrorMessage(error.what());
 		}
