@@ -5,18 +5,18 @@ This module implements [YARA][yara] bindings for [Node.js][nodejs].
 
 **This module is supported on Linux and MacOS (using homebrew) platforms only**
 
-This module requires the `libmagic` library and the `libcrypto` library, and
-their associated C header files.  Use the following commands to install these
-libraries before installation:
+This module uses the installed version of libyara.  You should download,
+compile and install your preferred version, or use one of the following
+commands using your system package manager:
 
 	# CentOS/Red Hat
-	sudo yum install file-devel
+	sudo yum install yara-devel
 	
 	# Debian/Ubuntu
-	sudo apt-get install libmagic-dev
-
+	sudo apt-get install yara
+	
 	# MacOS (using homebrew)
-	sudo brew install autoconf aclocal automake libtool libmagic libssl
+	sudo brew install yara
 
 This module is installed using [node package manager (npm)][npm]:
 
@@ -25,13 +25,6 @@ This module is installed using [node package manager (npm)][npm]:
 	# must be configured before installation.
 
 	npm install yara
-
-The `libyara` library source is NOT included in this module and will be
-downloaded and compiled using `make` and associated tools during installation.
-By default version `3.7.0` of `libyara` will used. The version can be
-overridden using the `YARA` environment variable, e.g.:
-
-	export YARA=3.6.4; npm install yara
 
 It is loaded using the `require()` function:
 
@@ -474,6 +467,11 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
 
  * Update YARA version downloaded during install to the latest stable release
    (version 3.7.0)
+
+## Version 2.0.0 - 29/01/2018
+
+ * Use YARA library from local system instead of downloading during
+   installation
 
 # Roadmap
 
