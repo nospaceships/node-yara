@@ -473,6 +473,11 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
  * Use YARA library from local system instead of downloading during
    installation
 
+## Version 2.0.1 - 29/01/2018
+
+ * Receiving an assertion error when compiling a rule containing a syntax
+   error
+
 # Roadmap
 
 Suggestions and requirements should be sent to <stephen.vickers.sv@gmail.com>.
