@@ -970,7 +970,11 @@ NAN_METHOD(ScannerWrap::Scan) {
 
 	ScannerWrap* scanner = ScannerWrap::Unwrap<ScannerWrap>(info.This());
 
-	if (! scanner->rules) {
+	scanner->lock_read();
+	bool rules_compiled = scanner->rules ? true : false;
+	scanner->unlock();
+
+	if (! rules_compiled) {
 		Nan::ThrowError("Please call configure() before scan()");
 		return;
 	}
