@@ -188,7 +188,7 @@ protected:
 
 		argv[0] = Nan::Null();
 
-		callback->Call(1, argv);
+		callback->Call(1, argv, async_resource);
 	}
 };
 
@@ -510,12 +510,12 @@ protected:
 			Local<Value> argv[2];
 			argv[0] = error;
 			argv[1] = warnings_array;
-			callback->Call(2, argv);
+			callback->Call(2, argv, async_resource);
 		} else {
 			Local<Value> argv[2];
 			argv[0] = Nan::Null();
 			argv[1] = warnings_array;
-			callback->Call(2, argv);
+			callback->Call(2, argv, async_resource);
 		}
 	}
 
@@ -861,7 +861,7 @@ protected:
 		Local<Value> argv[2];
 		argv[0] = Nan::Null();
 		argv[1] = res;
-		callback->Call(2, argv);
+		callback->Call(2, argv, async_resource);
 	}
 
 private:
