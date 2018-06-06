@@ -484,7 +484,7 @@ Bug reports should be sent to <stephen.vickers.sv@gmail.com>.
  * `Scanner.scan()` doesn't use a lock before checking rules are compiled on a
    scanner
 
-## Version 2.1.1 - 06/06/2018
+## Version 2.1.2 - 06/06/2018
 
  * Set NoSpaceships Ltd to be the owner and maintainer
 
