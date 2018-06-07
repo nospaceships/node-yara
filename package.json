@@ -1,6 +1,6 @@
 {
   "name": "yara",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "YARA support for Node.js",
   "main": "index.js",
   "directories": {
