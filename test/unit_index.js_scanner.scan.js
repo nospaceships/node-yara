@@ -406,5 +406,42 @@ describe("index.js", function() {
 					})
 				})
 		})
+
+		it("rules - retains colon in meta value", function(done) {
+			scanner.configure({
+					rules: [
+						{string: "rule colon_in_meta {\nmeta:\nm1 = \"colon : in meta\"\n\nstrings:\n$s1 = \"colon_in_meta\"\ncondition:\nany of them\n}"}
+					]
+				}, function(error) {
+					assert.ifError(error)
+
+					var req = {
+						buffer: Buffer.from("colon_in_meta")
+					}
+
+					scanner.scan(req, function(error, result) {
+						assert.ifError(error)
+
+						var expected = {
+							"rules": [
+								{
+									"id": "colon_in_meta",
+									"tags": [],
+									"matches": [
+										{offset: 0, length: 13, id: "$s1"}
+									],
+									"metas": [
+										{id: "m1", type: 2, value: "colon : in meta"}
+									]
+								}
+							]
+						}
+
+						assert.deepEqual(result, expected)
+
+						done()
+					})
+				})
+		})
 	})
 })

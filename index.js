@@ -76,10 +76,13 @@ Scanner.prototype.scan = function(req, cb) {
 				for (var i = 0; i < rule.metas.length; i++) {
 					var fields = rule.metas[i].split(":")
 
+					var type = parseInt(fields.shift())
+					var id = fields.shift()
+
 					var meta = {
-						type: parseInt(fields[0]),
-						id: fields[1],
-						value: fields[2]
+						type: type,
+						id: id,
+						value: fields.join(":")
 					}
 
 					if (meta.type == yara.MetaType.Integer)
