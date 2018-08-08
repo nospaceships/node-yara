@@ -13,7 +13,7 @@ commands using your system package manager:
 	sudo yum install yara-devel
 	
 	# Debian/Ubuntu
-	sudo apt-get install yara
+	sudo apt-get install libyara-dev
 	
 	# MacOS (using homebrew)
 	sudo brew install yara
@@ -53,7 +53,7 @@ be created, and content scanned using YARA rules:
 			
 			scanner.configure({rules: rules}, function(error, warnings) {
 				if (error) {
-					if (error instanceof CompileRulesError) {
+					if (error instanceof yara.CompileRulesError) {
 						console.error(error.message + ": " + JSON.stringify(error.errors))
 					} else {
 						console.error(error.message)
@@ -229,10 +229,10 @@ Before any `Scanner` instances can be configured, or used for scanning, the
 ## yara.libyaraVersion()
 
 The `libyaraVersion()` function returns a string containing the version of
-YARA which was statically compiled into the module during installation.
+YARA library loaded and used by this module.
 
-The following example will print `3.6.4` to standard output if the module was
-installed using the `YARA=3.6.4 npm install yara` command:
+The following example will print `3.7.0` to standard output if the version of
+YARA installed locally is `3.7.0`:
 
 	console.log(yara.libyaraVersion())
 
@@ -330,7 +330,7 @@ The following example configures a number of YARA rules from strings:
 	
 	scanner.configure({rules: rules, variables: variables}, function(error, warnings) {
 		if (error) {
-			if (error instanceof CompileRulesError) {
+			if (error instanceof yara.CompileRulesError) {
 				console.error(error.message + ": " + JSON.stringify(error.errors))
 			} else {
 				console.error(error.message)
@@ -485,6 +485,11 @@ Example programs are included under the modules `example` directory.
 ## Version 2.1.3 - 07/06/2018
 
  * Remove redundant sections from README.md
+
+## Version 2.1.4 - 08/08/2018
+
+ * Value of a meta field is cut off at the first colon
+ * Documentation errors
 
 # License
 
