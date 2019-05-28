@@ -1,13 +1,13 @@
 {
   "name": "yara",
-  "version": "2.1.4",
+  "version": "2.2.0",
   "description": "YARA support for Node.js",
   "main": "index.js",
   "directories": {
     "example": "example"
   },
   "dependencies": {
-    "nan": "2.10.*"
+    "nan": "2.14.*"
   },
   "contributors": [
     {
