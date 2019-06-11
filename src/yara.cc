@@ -67,7 +67,7 @@ private:
 	std::string _what;
 };
 
-void InitAll(Handle<Object> exports) {
+void InitAll(Local<Object> exports) {
 	MAP_ERROR_CODE("ERROR_SUCCESS", ERROR_SUCCESS);
 	MAP_ERROR_CODE("ERROR_INSUFICIENT_MEMORY", ERROR_INSUFICIENT_MEMORY);
 	MAP_ERROR_CODE("ERROR_COULD_NOT_ATTACH_TO_PROCESS", ERROR_COULD_NOT_ATTACH_TO_PROCESS);
@@ -125,7 +125,7 @@ void InitAll(Handle<Object> exports) {
 
 NODE_MODULE(yara, InitAll)
 
-void ExportConstants(Handle<Object> target) {
+void ExportConstants(Local<Object> target) {
 	Local<Object> variable_type = Nan::New<Object>();
 
 	Nan::Set(target, Nan::New("VariableType").ToLocalChecked(), variable_type);
@@ -150,11 +150,11 @@ void ExportConstants(Handle<Object> target) {
 	Nan::Set(meta_type, Nan::New("String").ToLocalChecked(), Nan::New<Number>(META_TYPE_STRING));
 }
 
-void ExportFunctions(Handle<Object> target) {
+void ExportFunctions(Local<Object> target) {
 	Nan::Set(target, Nan::New("libyaraVersion").ToLocalChecked(),
-			Nan::New<FunctionTemplate>(LibyaraVersion)->GetFunction());
+			Nan::GetFunction(Nan::New<FunctionTemplate>(LibyaraVersion)).ToLocalChecked());
 	Nan::Set(target, Nan::New("initialize").ToLocalChecked(),
-			Nan::New<FunctionTemplate>(Initialize)->GetFunction());
+			Nan::GetFunction(Nan::New<FunctionTemplate>(Initialize)).ToLocalChecked());
 }
 
 NAN_METHOD(LibyaraVersion) {
@@ -214,7 +214,7 @@ NAN_METHOD(Initialize) {
 	info.GetReturnValue().Set(info.This());
 }
 
-void ScannerWrap::Init(Handle<Object> exports) {
+void ScannerWrap::Init(Local<Object> exports) {
 	Nan::HandleScope scope;
 
 	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(ScannerWrap::New);
@@ -556,7 +556,7 @@ NAN_METHOD(ScannerWrap::Configure) {
 		return;
 	}
 
-	Local<Object> options = info[0]->ToObject();
+	Local<Object> options = Nan::To<Object>(info[0]).ToLocalChecked();
 
 	RuleConfigList* rule_configs = new RuleConfigList();
 
@@ -566,24 +566,24 @@ NAN_METHOD(ScannerWrap::Configure) {
 
 	for (uint32_t i = 0; i < rules->Length(); i++) {
 		if (rules->Get(i)->IsObject()) {
-			Local<Object> rule = rules->Get(i)->ToObject();
+			Local<Object> rule = Nan::To<Object>(rules->Get(i)).ToLocalChecked();
 
 			std::string ns;
 			std::string str;
 			std::string filename;
 
 			if (rule->Get(Nan::New("namespace").ToLocalChecked())->IsString()) {
-				Local<String> s = rule->Get(Nan::New("namespace").ToLocalChecked())->ToString();
+				Local<String> s = Nan::To<String>(rule->Get(Nan::New("namespace").ToLocalChecked())).ToLocalChecked();
 				ns = *Nan::Utf8String(s);
 			}
 
 			if (rule->Get(Nan::New("string").ToLocalChecked())->IsString()) {
-				Local<String> s = rule->Get(Nan::New("string").ToLocalChecked())->ToString();
+				Local<String> s = Nan::To<String>(rule->Get(Nan::New("string").ToLocalChecked())).ToLocalChecked();
 				str = *Nan::Utf8String(s);
 			}
 
 			if (rule->Get(Nan::New("filename").ToLocalChecked())->IsString()) {
-				Local<String> s = rule->Get(Nan::New("filename").ToLocalChecked())->ToString();
+				Local<String> s = Nan::To<String>(rule->Get(Nan::New("filename").ToLocalChecked())).ToLocalChecked();
 				filename = *Nan::Utf8String(s);
 			}
 
@@ -613,7 +613,7 @@ NAN_METHOD(ScannerWrap::Configure) {
 
 	for (uint32_t i = 0; i < variables->Length(); i++) {
 		if (variables->Get(i)->IsObject()) {
-			Local<Object> variable = variables->Get(i)->ToObject();
+			Local<Object> variable = Nan::To<Object>(variables->Get(i)).ToLocalChecked();
 
 			VarType type;
 			std::string id;
@@ -979,7 +979,7 @@ NAN_METHOD(ScannerWrap::Scan) {
 		return;
 	}
 
-	Local<Object> req = info[0]->ToObject();
+	Local<Object> req = Nan::To<Object>(info[0]).ToLocalChecked();
 
 	char* filename = NULL;
 	char *buffer = NULL;
@@ -990,10 +990,10 @@ NAN_METHOD(ScannerWrap::Scan) {
 	int32_t matched_bytes = 0;
 
 	if (req->Get(Nan::New("filename").ToLocalChecked())->IsString()) {
-		Local<String> s = req->Get(Nan::New("filename").ToLocalChecked())->ToString();
+		Local<String> s = Nan::To<String>(req->Get(Nan::New("filename").ToLocalChecked())).ToLocalChecked();
 		filename = *Nan::Utf8String(s);
 	} else if (req->Get(Nan::New("buffer").ToLocalChecked())->IsObject()) {
-		Local<Object> o = req->Get(Nan::New("buffer").ToLocalChecked())->ToObject();
+		Local<Object> o = Nan::To<Object>(req->Get(Nan::New("buffer").ToLocalChecked())).ToLocalChecked();
 		buffer = node::Buffer::Data(o);
 
 		if (req->Get(Nan::New("offset").ToLocalChecked())->IsNumber()) {

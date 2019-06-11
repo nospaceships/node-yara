@@ -11,8 +11,8 @@ using namespace v8;
 
 namespace yara {
 
-void ExportConstants(Handle<Object> target);
-void ExportFunctions(Handle<Object> target);
+void ExportConstants(Local<Object> target);
+void ExportFunctions(Local<Object> target);
 
 NAN_METHOD(ErrorCodeToString);
 NAN_METHOD(LibyaraVersion);
@@ -20,7 +20,7 @@ NAN_METHOD(Initialize);
 
 class ScannerWrap : public Nan::ObjectWrap {
 public:
-	static void Init(Handle<Object> exports);
+	static void Init(Local<Object> exports);
 
 	void lock_read(void);
 	void lock_write(void);
