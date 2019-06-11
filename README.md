@@ -495,6 +495,7 @@ Example programs are included under the modules `example` directory.
 
  * Upgrade nan to 2.14.x and add support for Node.js 12.x
  * Get rid of all deprecation warnings
+ * Update error messages used by some of the unit tests
 
 # License
 

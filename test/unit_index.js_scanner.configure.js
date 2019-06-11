@@ -54,7 +54,7 @@ describe("index.js", function() {
 					var expErrors = [{
 						index: 0,
 						line: 1,
-						message: "syntax error, unexpected '}', expecting _CONDITION_"
+						message: "syntax error, unexpected '}', expecting <condition>"
 					}]
 
 					assert.deepEqual(error.errors, expErrors)
@@ -136,7 +136,7 @@ describe("index.js", function() {
 					var expErrors = [{
 						index: 0,
 						line: 4,
-						message: "syntax error, unexpected _HEX_STRING_, expecting _IDENTIFIER_"
+						message: "syntax error, unexpected hex string, expecting identifier"
 					}]
 
 					assert.deepEqual(error.errors, expErrors)
