@@ -491,6 +491,11 @@ Example programs are included under the modules `example` directory.
  * Value of a meta field is cut off at the first colon
  * Documentation errors
 
+## Version 2.2.0 - 11/06/2019
+
+ * Upgrade nan to 2.14.x and add support for Node.js 12.x
+ * Get rid of all deprecation warnings
+
 # License
 
 Copyright (c) 2018 NoSpaceships Ltd <hello@nospaceships.com>
