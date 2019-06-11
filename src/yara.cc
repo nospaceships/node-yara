@@ -151,10 +151,8 @@ void ExportConstants(Local<Object> target) {
 }
 
 void ExportFunctions(Local<Object> target) {
-	Nan::Set(target, Nan::New("libyaraVersion").ToLocalChecked(),
-			Nan::GetFunction(Nan::New<FunctionTemplate>(LibyaraVersion)).ToLocalChecked());
-	Nan::Set(target, Nan::New("initialize").ToLocalChecked(),
-			Nan::GetFunction(Nan::New<FunctionTemplate>(Initialize)).ToLocalChecked());
+	Nan::Set(target, Nan::New("libyaraVersion").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(LibyaraVersion)).ToLocalChecked());
+	Nan::Set(target, Nan::New("initialize").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(Initialize)).ToLocalChecked());
 }
 
 NAN_METHOD(LibyaraVersion) {
@@ -225,8 +223,7 @@ void ScannerWrap::Init(Local<Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "scan", Scan);
 
 	ScannerWrap_constructor.Reset(tpl);
-	exports->Set(Nan::New("ScannerWrap").ToLocalChecked(),
-			Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(exports, Nan::New("ScannerWrap").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 ScannerWrap::ScannerWrap() : compiler(NULL), rules(NULL) {
@@ -487,7 +484,7 @@ protected:
 
 		while (warnings_it != warnings.end()) {
 			Nan::MaybeLocal<String> str = Nan::New<String>((*warnings_it).c_str());
-			warnings_array->Set(warnings_index++, str.ToLocalChecked());
+			Nan::Set(warnings_array, warnings_index++, str.ToLocalChecked());
 			warnings_it++;
 		}
 
@@ -501,11 +498,11 @@ protected:
 
 			while (errors_it != errors.end()) {
 				Nan::MaybeLocal<String> str = Nan::New<String>((*errors_it).c_str());
-				errors_array->Set(index++, str.ToLocalChecked());
+				Nan::Set(errors_array, index++, str.ToLocalChecked());
 				errors_it++;
 			}
 
-			error->Set(Nan::New<String>("errors").ToLocalChecked(), errors_array);
+			Nan::Set(error, Nan::New<String>("errors").ToLocalChecked(), errors_array);
 
 			Local<Value> argv[2];
 			argv[0] = error;
@@ -565,25 +562,25 @@ NAN_METHOD(ScannerWrap::Configure) {
 		);
 
 	for (uint32_t i = 0; i < rules->Length(); i++) {
-		if (rules->Get(i)->IsObject()) {
-			Local<Object> rule = Nan::To<Object>(rules->Get(i)).ToLocalChecked();
+		if (Nan::Get(rules, i).ToLocalChecked()->IsObject()) {
+			Local<Object> rule = Nan::To<Object>(Nan::Get(rules, i).ToLocalChecked()).ToLocalChecked();
 
 			std::string ns;
 			std::string str;
 			std::string filename;
 
-			if (rule->Get(Nan::New("namespace").ToLocalChecked())->IsString()) {
-				Local<String> s = Nan::To<String>(rule->Get(Nan::New("namespace").ToLocalChecked())).ToLocalChecked();
+			if (Nan::Get(rule, Nan::New("namespace").ToLocalChecked()).ToLocalChecked()->IsString()) {
+				Local<String> s = Nan::To<String>(Nan::Get(rule, Nan::New("namespace").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 				ns = *Nan::Utf8String(s);
 			}
 
-			if (rule->Get(Nan::New("string").ToLocalChecked())->IsString()) {
-				Local<String> s = Nan::To<String>(rule->Get(Nan::New("string").ToLocalChecked())).ToLocalChecked();
+			if (Nan::Get(rule, Nan::New("string").ToLocalChecked()).ToLocalChecked()->IsString()) {
+				Local<String> s = Nan::To<String>(Nan::Get(rule, Nan::New("string").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 				str = *Nan::Utf8String(s);
 			}
 
-			if (rule->Get(Nan::New("filename").ToLocalChecked())->IsString()) {
-				Local<String> s = Nan::To<String>(rule->Get(Nan::New("filename").ToLocalChecked())).ToLocalChecked();
+			if (Nan::Get(rule, Nan::New("filename").ToLocalChecked()).ToLocalChecked()->IsString()) {
+				Local<String> s = Nan::To<String>(Nan::Get(rule, Nan::New("filename").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 				filename = *Nan::Utf8String(s);
 			}
 
@@ -612,16 +609,16 @@ NAN_METHOD(ScannerWrap::Configure) {
 		);
 
 	for (uint32_t i = 0; i < variables->Length(); i++) {
-		if (variables->Get(i)->IsObject()) {
-			Local<Object> variable = Nan::To<Object>(variables->Get(i)).ToLocalChecked();
+		if (Nan::Get(variables, i).ToLocalChecked()->IsObject()) {
+			Local<Object> variable = Nan::To<Object>(Nan::Get(variables, i).ToLocalChecked()).ToLocalChecked();
 
 			VarType type;
 			std::string id;
 
-			Local<Uint32> t = Nan::To<Uint32>(variable->Get(Nan::New("type").ToLocalChecked())).ToLocalChecked();
+			Local<Uint32> t = Nan::To<Uint32>(Nan::Get(variable, Nan::New("type").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 			type = (VarType) t->Value();
 
-			Local<String> i = Nan::To<String>(variable->Get(Nan::New("id").ToLocalChecked())).ToLocalChecked();
+			Local<String> i = Nan::To<String>(Nan::Get(variable, Nan::New("id").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 			id = *Nan::Utf8String(i);
 
 			VarConfig* var_config = new VarConfig();
@@ -631,20 +628,16 @@ NAN_METHOD(ScannerWrap::Configure) {
 
 			switch (type) {
 				case IntegerVarType:
-					var_config->value_integer = Nan::To<Integer>(variable->Get(
-							Nan::New("value").ToLocalChecked())).ToLocalChecked()->Value();
+					var_config->value_integer = Nan::To<Integer>(Nan::Get(variable, Nan::New("value").ToLocalChecked()).ToLocalChecked()).ToLocalChecked()->Value();
 					break;
 				case FloatVarType:
-					var_config->value_float = Nan::To<Number>(variable->Get(
-							Nan::New("value").ToLocalChecked())).ToLocalChecked()->Value();
+					var_config->value_float = Nan::To<Number>(Nan::Get(variable, Nan::New("value").ToLocalChecked()).ToLocalChecked()).ToLocalChecked()->Value();
 					break;
 				case BooleanVarType:
-					var_config->value_boolean = Nan::To<Boolean>(variable->Get(
-							Nan::New("value").ToLocalChecked())).ToLocalChecked()->Value();
+					var_config->value_boolean = Nan::To<Boolean>(Nan::Get(variable, Nan::New("value").ToLocalChecked()).ToLocalChecked()).ToLocalChecked()->Value();
 					break;
 				case StringVarType:
-					var_config->value_string = *Nan::Utf8String(Nan::To<String>(
-							variable->Get(Nan::New("value").ToLocalChecked())).ToLocalChecked());
+					var_config->value_string = *Nan::Utf8String(Nan::To<String>(Nan::Get(variable, Nan::New("value").ToLocalChecked()).ToLocalChecked()).ToLocalChecked());
 					break;
 			}
 
@@ -814,7 +807,7 @@ protected:
 					tags_it != rule_match->tags.end();
 					tags_it++) {
 				Local<String> tag = Nan::New((*tags_it).c_str()).ToLocalChecked();
-				tags->Set(tags_index++, tag);
+				Nan::Set(tags, tags_index++, tag);
 			}
 
 			Local<Array> metas = Nan::New<Array>();
@@ -824,7 +817,7 @@ protected:
 					metas_it != rule_match->metas.end();
 					metas_it++) {
 				Local<String> meta = Nan::New((*metas_it).c_str()).ToLocalChecked();
-				metas->Set(metas_index++, meta);
+				Nan::Set(metas, metas_index++, meta);
 			}
 
 			Local<Array> matches = Nan::New<Array>();
@@ -834,7 +827,7 @@ protected:
 					matches_it != rule_match->matches.end();
 					matches_it++) {
 				Local<String> match = Nan::New((*matches_it).c_str()).ToLocalChecked();
-				matches->Set(matches_index++, match);
+				Nan::Set(matches, matches_index++, match);
 			}
 
 			Local<Array> datas = Nan::New<Array>();
@@ -844,19 +837,19 @@ protected:
 					datas_it != rule_match->datas.end();
 					datas_it++) {
 				Local<Object> data = Nan::NewBuffer((char*) (*datas_it)->bytes, (*datas_it)->length).ToLocalChecked();
-				datas->Set(datas_index++, data);
+				Nan::Set(datas, datas_index++, data);
 			}
 
-			rule->Set(Nan::New("id").ToLocalChecked(), Nan::New(rule_match->id.c_str()).ToLocalChecked());
-			rule->Set(Nan::New("tags").ToLocalChecked(), tags);
-			rule->Set(Nan::New("metas").ToLocalChecked(), metas);
-			rule->Set(Nan::New("matches").ToLocalChecked(), matches);
-			rule->Set(Nan::New("datas").ToLocalChecked(), datas);
+			Nan::Set(rule, Nan::New("id").ToLocalChecked(), Nan::New(rule_match->id.c_str()).ToLocalChecked());
+			Nan::Set(rule, Nan::New("tags").ToLocalChecked(), tags);
+			Nan::Set(rule, Nan::New("metas").ToLocalChecked(), metas);
+			Nan::Set(rule, Nan::New("matches").ToLocalChecked(), matches);
+			Nan::Set(rule, Nan::New("datas").ToLocalChecked(), datas);
 
-			rules->Set(rules_index++, rule);
+			Nan::Set(rules, rules_index++, rule);
 		}
 
-		res->Set(Nan::New("rules").ToLocalChecked(), rules);
+		Nan::Set(res, Nan::New("rules").ToLocalChecked(), rules);
 
 		Local<Value> argv[2];
 		argv[0] = Nan::Null();
@@ -989,15 +982,15 @@ NAN_METHOD(ScannerWrap::Scan) {
 	int32_t timeout = 0;
 	int32_t matched_bytes = 0;
 
-	if (req->Get(Nan::New("filename").ToLocalChecked())->IsString()) {
-		Local<String> s = Nan::To<String>(req->Get(Nan::New("filename").ToLocalChecked())).ToLocalChecked();
+	if (Nan::Get(req, Nan::New("filename").ToLocalChecked()).ToLocalChecked()->IsString()) {
+		Local<String> s = Nan::To<String>(Nan::Get(req, Nan::New("filename").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 		filename = *Nan::Utf8String(s);
-	} else if (req->Get(Nan::New("buffer").ToLocalChecked())->IsObject()) {
-		Local<Object> o = Nan::To<Object>(req->Get(Nan::New("buffer").ToLocalChecked())).ToLocalChecked();
+	} else if (Nan::Get(req, Nan::New("buffer").ToLocalChecked()).ToLocalChecked()->IsObject()) {
+		Local<Object> o = Nan::To<Object>(Nan::Get(req, Nan::New("buffer").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 		buffer = node::Buffer::Data(o);
 
-		if (req->Get(Nan::New("offset").ToLocalChecked())->IsNumber()) {
-			Local<Number> n = Nan::To<Number>(req->Get(Nan::New("offset").ToLocalChecked())).ToLocalChecked();
+		if (Nan::Get(req, Nan::New("offset").ToLocalChecked()).ToLocalChecked()->IsNumber()) {
+			Local<Number> n = Nan::To<Number>(Nan::Get(req, Nan::New("offset").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 
 			if (n->Value() < 0) {
 				Nan::ThrowError("Offset is out of bounds");
@@ -1012,8 +1005,8 @@ NAN_METHOD(ScannerWrap::Scan) {
 			offset = 0;
 		}
 
-		if (req->Get(Nan::New("length").ToLocalChecked())->IsNumber()) {
-			Local<Number> n = Nan::To<Number>(req->Get(Nan::New("length").ToLocalChecked())).ToLocalChecked();
+		if (Nan::Get(req, Nan::New("length").ToLocalChecked()).ToLocalChecked()->IsNumber()) {
+			Local<Number> n = Nan::To<Number>(Nan::Get(req, Nan::New("length").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 
 			if (n->Value() <= 0) {
 				Nan::ThrowError("Length is out of bounds");
@@ -1028,8 +1021,8 @@ NAN_METHOD(ScannerWrap::Scan) {
 			length = node::Buffer::Length(o) - offset;
 		}
 
-		if (req->Get(Nan::New("flags").ToLocalChecked())->IsInt32()) {
-			Local<Int32> n = Nan::To<Int32>(req->Get(Nan::New("flags").ToLocalChecked())).ToLocalChecked();
+		if (Nan::Get(req, Nan::New("flags").ToLocalChecked()).ToLocalChecked()->IsInt32()) {
+			Local<Int32> n = Nan::To<Int32>(Nan::Get(req, Nan::New("flags").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 
 			if (n->Value() < 0) {
 				Nan::ThrowError("Flags cannot be negative");
@@ -1041,8 +1034,8 @@ NAN_METHOD(ScannerWrap::Scan) {
 			flags = 0;
 		}
 
-		if (req->Get(Nan::New("timeout").ToLocalChecked())->IsInt32()) {
-			Local<Int32> n = Nan::To<Int32>(req->Get(Nan::New("timeout").ToLocalChecked())).ToLocalChecked();
+		if (Nan::Get(req, Nan::New("timeout").ToLocalChecked()).ToLocalChecked()->IsInt32()) {
+			Local<Int32> n = Nan::To<Int32>(Nan::Get(req, Nan::New("timeout").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 
 			if (n->Value() < 0) {
 				Nan::ThrowError("Timeout cannot be negative");
@@ -1060,8 +1053,8 @@ NAN_METHOD(ScannerWrap::Scan) {
 		return;
 	}
 
-	if (req->Get(Nan::New("matchedBytes").ToLocalChecked())->IsNumber()) {
-		Local<Number> n = Nan::To<Number>(req->Get(Nan::New("matchedBytes").ToLocalChecked())).ToLocalChecked();
+	if (Nan::Get(req, Nan::New("matchedBytes").ToLocalChecked()).ToLocalChecked()->IsNumber()) {
+		Local<Number> n = Nan::To<Number>(Nan::Get(req, Nan::New("matchedBytes").ToLocalChecked()).ToLocalChecked()).ToLocalChecked();
 
 		if (n->Value() <= 0) {
 			Nan::ThrowError("Matched bytes is out of bounds");
