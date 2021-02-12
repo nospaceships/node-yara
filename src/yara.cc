@@ -221,6 +221,7 @@ void ScannerWrap::Init(Local<Object> exports) {
 
 	Nan::SetPrototypeMethod(tpl, "configure", Configure);
 	Nan::SetPrototypeMethod(tpl, "scan", Scan);
+	Nan::SetPrototypeMethod(tpl, "getRules", GetRules);
 
 	ScannerWrap_constructor.Reset(tpl);
 	Nan::Set(exports, Nan::New("ScannerWrap").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
@@ -456,7 +457,7 @@ public:
 						);
 				}
 			}
-			
+
 			if (error_count == 0) {
 				rc = yr_compiler_get_rules(scanner_->compiler, &scanner_->rules);
 				if (rc != ERROR_SUCCESS)
@@ -691,6 +692,14 @@ struct MatchData {
 	uint8_t* bytes;
 	uint32_t length;
 };
+
+struct CompiledRule {
+	std::string id;
+	std::list<std::string> tags;
+	std::list<std::string> metas;
+};
+
+typedef std::list<CompiledRule*> CompiledRuleList;
 
 struct ScanRuleMatch {
 	std::string id;
@@ -943,6 +952,90 @@ int scanCallback(int message, void* data, void* param) {
 	return CALLBACK_CONTINUE;
 }
 
+NAN_METHOD(ScannerWrap::GetRules) {
+	Nan::HandleScope scope;
+
+	CompiledRuleList compiled_rules;
+	CompiledRuleList::iterator compiled_rules_it;
+	YR_RULE* rule;
+
+	ScannerWrap* scanner = ScannerWrap::Unwrap<ScannerWrap>(info.This());
+
+	yr_rules_foreach(scanner->rules, rule) {
+		CompiledRule* compiled_rule;
+		YR_META* meta;
+		YR_STRING* rule_string;
+		const char* tag;
+
+		compiled_rule = new CompiledRule();
+
+		compiled_rule->id = rule->identifier;
+
+		yr_rule_tags_foreach(rule, tag) {
+			compiled_rule->tags.push_back(std::string(tag));
+		}
+
+		yr_rule_metas_foreach(rule, meta) {
+			std::ostringstream oss;
+			oss << meta->type << ":" << meta->identifier << ":";
+
+			if (meta->type == META_TYPE_INTEGER)
+				oss << meta->integer;
+			else if (meta->type == META_TYPE_BOOLEAN)
+				oss << (meta->integer ? "true" : "false");
+			else
+				oss << meta->string;
+
+			compiled_rule->metas.push_back(oss.str());
+		}
+
+		compiled_rules.push_back(compiled_rule);
+	}
+
+	Local<Object> res = Nan::New<Object>();
+
+	Local<Array> rules = Nan::New<Array>();
+	int rules_index = 0;
+
+	for (CompiledRuleList::iterator compiled_rules_it = compiled_rules.begin();
+			compiled_rules_it != compiled_rules.end();
+			compiled_rules_it++) {
+		CompiledRule* compiled_rule = *compiled_rules_it;
+
+		Local<Object> rule = Nan::New<Object>();
+
+		Local<Array> tags = Nan::New<Array>();
+		int tags_index = 0;
+
+		for (std::list<std::string>::iterator tags_it = compiled_rule->tags.begin();
+				tags_it != compiled_rule->tags.end();
+				tags_it++) {
+			Local<String> tag = Nan::New((*tags_it).c_str()).ToLocalChecked();
+			Nan::Set(tags, tags_index++, tag);
+		}
+
+		Local<Array> metas = Nan::New<Array>();
+		int metas_index = 0;
+
+		for (std::list<std::string>::iterator metas_it = compiled_rule->metas.begin();
+				metas_it != compiled_rule->metas.end();
+				metas_it++) {
+			Local<String> meta = Nan::New((*metas_it).c_str()).ToLocalChecked();
+			Nan::Set(metas, metas_index++, meta);
+		}
+
+		Nan::Set(rule, Nan::New("id").ToLocalChecked(), Nan::New(compiled_rule->id.c_str()).ToLocalChecked());
+		Nan::Set(rule, Nan::New("tags").ToLocalChecked(), tags);
+		Nan::Set(rule, Nan::New("metas").ToLocalChecked(), metas);
+
+		Nan::Set(rules, rules_index++, rule);
+	}
+
+	Nan::Set(res, Nan::New("rules").ToLocalChecked(), rules);
+
+	info.GetReturnValue().Set(res);
+}
+
 NAN_METHOD(ScannerWrap::Scan) {
 	Nan::HandleScope scope;
 
@@ -1084,7 +1177,7 @@ NAN_METHOD(ScannerWrap::Scan) {
 			scan_req,
 			callback
 		);
-	
+
 	async_scan->matched_bytes = matched_bytes;
 
 	Nan::AsyncQueueWorker(async_scan);
