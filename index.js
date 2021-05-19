@@ -2,6 +2,30 @@
 var util = require("util")
 var yara = require ("./build/Release/yara");
 
+function _parseMetadata(rule) {
+	for (var i = 0; i < rule.metas.length; i++) {
+		var fields = rule.metas[i].split(":")
+
+		var type = parseInt(fields.shift())
+		var id = fields.shift()
+
+		var meta = {
+			type: type,
+			id: id,
+			value: fields.join(":")
+		}
+
+		if (meta.type == yara.MetaType.Integer)
+			meta.value = parseInt(meta.value)
+		else if (meta.type == yara.MetaType.Boolean)
+			meta.value = (meta.value == "true") ? true : false
+
+		rule.metas[i] = meta
+	}
+
+	return rule;
+}
+
 function _expandConstantObject(object) {
 	var keys = []
 	for (var key in object)
@@ -21,6 +45,15 @@ util.inherits(CompileRulesError, Error)
 
 function Scanner(options) {
 	this.yara = new yara.ScannerWrap()
+}
+
+Scanner.prototype.getRules = function() {
+	var result = this.yara.getRules();
+	result.rules.forEach(function(rule) {
+		_parseMetadata(rule);
+	});
+
+	return result;
 }
 
 Scanner.prototype.configure = function(options, cb) {
@@ -73,25 +106,7 @@ Scanner.prototype.scan = function(req, cb) {
 			cb(error)
 		} else {
 			result.rules.forEach(function(rule) {
-				for (var i = 0; i < rule.metas.length; i++) {
-					var fields = rule.metas[i].split(":")
-
-					var type = parseInt(fields.shift())
-					var id = fields.shift()
-
-					var meta = {
-						type: type,
-						id: id,
-						value: fields.join(":")
-					}
-
-					if (meta.type == yara.MetaType.Integer)
-						meta.value = parseInt(meta.value)
-					else if (meta.type == yara.MetaType.Boolean)
-						meta.value = (meta.value == "true") ? true : false
-
-					rule.metas[i] = meta
-				}
+				rule = _parseMetadata(rule);
 
 				for (var i = 0; i < rule.matches.length; i++) {
 					var fields = rule.matches[i].split(":")
